@@ -1,6 +1,6 @@
 import os
 from flask import Flask, jsonify, request
-from models import db, Item, Book, Hardware
+from models import db, Book, Hardware
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -10,18 +10,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 def return_all():
     type_of_item = request.args['type']
 
+    ret = ''
+
     if type_of_item == 'book':
         book_items = Book.query.all()
         for book in book_items:
-            print book
+            ret += book
     elif type_of_item == 'hardware':
         hardware_items = Hardware.query.all()
         for hardware in hardware_items:
-            print hardware
-    else:
-        items = Item.query.all()
-        for item in items:
-            print item
+            ret += hardware
+
+    return ret
 
 @app.route('/api/new', methods=['POST'])
 def create_new():
@@ -68,7 +68,7 @@ def checkout():
         return
 
 @app.route('/api/checkin', methods=['POST'])
-def checkout():
+def checkin():
     type_of_item = request.form['type']
     item_id = int(request.form['id'])
     user_id = int(request.form['user_id'])
@@ -86,6 +86,6 @@ def checkout():
         return
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 80))
+    port = int(os.environ.get("PORT", 5000))
     db.init_app(app)
     app.run(host='0.0.0.0', port=port, debug=True)
